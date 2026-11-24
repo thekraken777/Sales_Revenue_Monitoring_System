@@ -1,0 +1,695 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* ==================================
+   SALES REPORT - SCREEN DESIGN
+================================== */
+
+#printable-report {
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 12px 8px;
+    background: #ffffff;
+    color: #243247;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    border-bottom: 2px solid #23364d;
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+}
+
+.report-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.report-logo {
+    width: 48px;
+    height: 48px;
+    background: #23364d;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 23px;
+}
+
+.report-brand-name {
+    font-size: 17px;
+    font-weight: 700;
+    color: #23364d;
+    margin: 0;
+}
+
+.report-brand-subtitle {
+    font-size: 11px;
+    color: #718096;
+    margin: 3px 0 0;
+}
+
+.report-title {
+    text-align: center;
+    flex: 1;
+}
+
+.report-title h2 {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    margin: 0;
+    color: #1e293b;
+}
+
+.report-title p {
+    font-size: 13px;
+    color: #64748b;
+    margin: 5px 0 0;
+}
+
+.report-generated {
+    text-align: right;
+    font-size: 11px;
+    color: #64748b;
+    min-width: 160px;
+}
+
+.report-generated strong {
+    display: block;
+    color: #334155;
+    margin-bottom: 4px;
+}
+
+/* PRINT BUTTON */
+
+.report-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+}
+
+/* FINANCIAL SUMMARY */
+
+.report-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 25px;
+}
+
+.report-summary-card {
+    padding: 17px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+    min-height: 100px;
+}
+
+.report-summary-card .metric-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 12px;
+}
+
+.report-summary-card .metric-value {
+    font-size: 23px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.report-summary-card.revenue {
+    border-top: 3px solid #2563eb;
+}
+
+.report-summary-card.revenue .metric-value {
+    color: #2563eb;
+}
+
+.report-summary-card.profit {
+    border-top: 3px solid #16a34a;
+}
+
+.report-summary-card.profit .metric-value {
+    color: #15803d;
+}
+
+.report-summary-card.transactions {
+    border-top: 3px solid #64748b;
+}
+
+.report-summary-card.items {
+    border-top: 3px solid #0d9488;
+}
+
+/* TRANSACTION TABLE */
+
+.report-table-section {
+    margin-top: 10px;
+}
+
+.report-section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.report-section-heading h5 {
+    font-size: 16px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.report-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 12px;
+    margin: 0;
+}
+
+.report-table th {
+    background: #edf2f7;
+    color: #334155;
+    font-weight: 700;
+    text-align: left;
+    padding: 12px 9px;
+    border-bottom: 2px solid #cbd5e1;
+    white-space: nowrap;
+}
+
+.report-table td {
+    padding: 11px 9px;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    vertical-align: middle;
+    overflow-wrap: anywhere;
+}
+
+.report-table tbody tr:nth-child(even) {
+    background: #f8fafc;
+}
+
+.report-table .number-column {
+    text-align: center;
+}
+
+.report-table .money-column {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.report-table .revenue-column {
+    color: #2563eb;
+    font-weight: 600;
+}
+
+.report-table .profit-column {
+    color: #15803d;
+    font-weight: 600;
+}
+
+.report-table .date-column {
+    white-space: nowrap;
+}
+
+.report-footer {
+    margin-top: 25px;
+    padding-top: 12px;
+    border-top: 1px solid #cbd5e1;
+    display: flex;
+    justify-content: space-between;
+    color: #64748b;
+    font-size: 10px;
+}
+
+/* ==================================
+   PRINT DESIGN - A4 LANDSCAPE
+================================== */
+
+@page {
+    size: A4 landscape;
+    margin: 10mm 12mm;
+}
+
+@media print {
+
+    html,
+    body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background: #ffffff !important;
+    }
+
+    /*
+       Hide everything outside the report.
+       This removes the sidebar, navigation,
+       and other website elements.
+    */
+
+    body * {
+        visibility: hidden !important;
+    }
+
+    #printable-report,
+    #printable-report * {
+        visibility: visible !important;
+    }
+
+    #printable-report {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #ffffff !important;
+        color: #111827 !important;
+        box-shadow: none !important;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    .report-header {
+        padding-bottom: 10px !important;
+        margin-bottom: 14px !important;
+        border-bottom: 2px solid #23364d !important;
+    }
+
+    .report-logo {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 19px !important;
+        background: #23364d !important;
+        color: #ffffff !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-title h2 {
+        font-size: 21px !important;
+    }
+
+    .report-title p {
+        font-size: 10px !important;
+    }
+
+    .report-brand-name {
+        font-size: 14px !important;
+    }
+
+    .report-brand-subtitle,
+    .report-generated {
+        font-size: 9px !important;
+    }
+
+    /* Keep all four summary cards in one row */
+
+    .report-summary {
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+        margin-bottom: 18px !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .report-summary-card {
+        min-height: 0 !important;
+        padding: 11px !important;
+        border: 1px solid #cbd5e1 !important;
+        border-top-width: 3px !important;
+        border-radius: 4px !important;
+        box-shadow: none !important;
+        background: #ffffff !important;
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .report-summary-card .metric-label {
+        font-size: 8px !important;
+        margin-bottom: 7px !important;
+    }
+
+    .report-summary-card .metric-value {
+        font-size: 17px !important;
+        overflow-wrap: normal !important;
+        white-space: nowrap !important;
+    }
+
+    .report-summary-card.revenue {
+        border-top-color: #2563eb !important;
+    }
+
+    .report-summary-card.profit {
+        border-top-color: #16a34a !important;
+    }
+
+    .report-summary-card.transactions {
+        border-top-color: #64748b !important;
+    }
+
+    .report-summary-card.items {
+        border-top-color: #0d9488 !important;
+    }
+
+    .report-section-heading {
+        margin-bottom: 8px !important;
+        padding-bottom: 7px !important;
+    }
+
+    .report-section-heading h5 {
+        font-size: 12px !important;
+    }
+
+    /*
+       Use available printable width.
+       Repeat the table header on later pages.
+    */
+
+    .table-responsive {
+        overflow: visible !important;
+    }
+
+    .report-table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+        font-size: 8px !important;
+    }
+
+    .report-table thead {
+        display: table-header-group !important;
+    }
+
+    .report-table tfoot {
+        display: table-footer-group !important;
+    }
+
+    .report-table tr {
+        break-inside: avoid !important;
+        page-break-inside: avoid !important;
+    }
+
+    .report-table th {
+        padding: 7px 5px !important;
+        font-size: 8px !important;
+        background: #edf2f7 !important;
+        color: #1e293b !important;
+        border: 1px solid #cbd5e1 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-table td {
+        padding: 6px 5px !important;
+        font-size: 8px !important;
+        color: #1e293b !important;
+        border: 1px solid #e2e8f0 !important;
+        overflow-wrap: normal !important;
+    }
+
+    .report-table tbody tr:nth-child(even) {
+        background: #f8fafc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    .report-table .money-column {
+        white-space: nowrap !important;
+    }
+
+    .report-table .revenue-column {
+        color: #1d4ed8 !important;
+    }
+
+    .report-table .profit-column {
+        color: #15803d !important;
+    }
+
+    .report-footer {
+        margin-top: 12px !important;
+        padding-top: 7px !important;
+        font-size: 8px !important;
+    }
+
+    body,
+    #printable-report {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+</style>
+
+
+<!-- ==================================
+     PRINT BUTTON
+================================== -->
+
+<div class="report-actions no-print">
+    <button
+        type="button"
+        class="btn btn-outline-secondary"
+        onclick="window.print();">
+
+        <i class="bi bi-printer"></i>
+        Print Report
+    </button>
+</div>
+
+
+<!-- ==================================
+     PRINTABLE REPORT CONTENT
+================================== -->
+
+<div id="printable-report">
+
+    <!-- REPORT HEADER -->
+
+    <div class="report-header">
+
+        <div class="report-brand">
+            <div class="report-logo">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+
+            <div>
+                <p class="report-brand-name">MONITORING SYSTEM</p>
+                <p class="report-brand-subtitle">
+                    Sales and Revenue Management
+                </p>
+            </div>
+        </div>
+
+        <div class="report-title">
+            <h2>SALES REPORT</h2>
+            <p>Sales and Revenue Summary</p>
+        </div>
+
+        <div class="report-generated">
+            <strong>Report Generated</strong>
+            <span id="report-generated-date">Preparing date...</span>
+        </div>
+
+    </div>
+
+
+    <!-- FINANCIAL SUMMARY -->
+
+    <div class="report-summary">
+
+        <div class="report-summary-card transactions">
+            <div class="metric-label">
+                Total Transactions
+            </div>
+
+            <p class="metric-value">
+                {{ "{:,}".format(tot_transactions) }}
+            </p>
+        </div>
+
+
+        <div class="report-summary-card items">
+            <div class="metric-label">
+                Total Items Sold
+            </div>
+
+            <p class="metric-value">
+                {{ "{:,}".format(tot_qty) }}
+            </p>
+        </div>
+
+
+        <div class="report-summary-card revenue">
+            <div class="metric-label">
+                Total Revenue
+            </div>
+
+            <p class="metric-value">
+                ₱{{ "{:,.2f}".format(tot_revenue) }}
+            </p>
+        </div>
+
+
+        <div class="report-summary-card profit">
+            <div class="metric-label">
+                Total Gross Profit
+            </div>
+
+            <p class="metric-value">
+                ₱{{ "{:,.2f}".format(tot_profit) }}
+            </p>
+        </div>
+
+    </div>
+
+
+    <!-- DETAILED SALES TABLE -->
+
+    <div class="report-table-section">
+
+        <div class="report-section-heading">
+            <h5>DETAILED SALES SUMMARY</h5>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="report-table">
+
+                <colgroup>
+                    <col style="width: 5%;">
+                    <col style="width: 17%;">
+                    <col style="width: 7%;">
+                    <col style="width: 12%;">
+                    <col style="width: 12%;">
+                    <col style="width: 15%;">
+                    <col style="width: 15%;">
+                    <col style="width: 17%;">
+                </colgroup>
+
+                <thead>
+                    <tr>
+                        <th class="number-column">ID</th>
+                        <th>Product</th>
+                        <th class="number-column">Qty</th>
+                        <th class="money-column">Selling Price</th>
+                        <th class="money-column">Cost Price</th>
+                        <th class="money-column">Revenue</th>
+                        <th class="money-column">Profit</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    {% for s in sales %}
+
+                    <tr>
+                        <td class="number-column">
+                            {{ loop.index }}
+                        </td>
+
+                        <td>
+                            {{ s.product.product_name if s.product else 'Deleted Product' }}
+                        </td>
+
+                        <td class="number-column">
+                            {{ "{:,}".format(s.quantity_sold) }}
+                        </td>
+
+                        <td class="money-column">
+                            ₱{{ "{:,.2f}".format(s.selling_price) }}
+                        </td>
+
+                        <td class="money-column">
+                            ₱{{ "{:,.2f}".format(s.cost_price) }}
+                        </td>
+
+                        <td class="money-column revenue-column">
+                            ₱{{ "{:,.2f}".format(s.total_revenue) }}
+                        </td>
+
+                        <td class="money-column profit-column">
+                            ₱{{ "{:,.2f}".format(s.total_profit) }}
+                        </td>
+
+                        <td class="date-column">
+                            {{ s.transaction_date.strftime('%d %b %Y, %I:%M %p') }}
+                        </td>
+                    </tr>
+
+                    {% else %}
+
+                    <tr>
+                        <td colspan="8" style="text-align: center;">
+                            No sales transactions available.
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+
+    <!-- REPORT FOOTER -->
+
+    <div class="report-footer">
+        <span>Monitoring System | Sales and Revenue Report</span>
+        <span>All amounts are in Philippine Peso (PHP).</span>
+    </div>
+
+</div>
+
+
+<!-- AUTOMATIC REPORT GENERATION DATE -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const dateElement = document.getElementById('report-generated-date');
+
+    if (dateElement) {
+        const currentDate = new Date();
+
+        dateElement.textContent = new Intl.DateTimeFormat('en-PH', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: true,
+            timeZone: 'Asia/Manila'
+        }).format(currentDate);
+    }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,1328 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<style>
+/* =========================================
+   PROFESSIONAL BUSINESS DASHBOARD
+========================================= */
+
+.dashboard-page {
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 4px 2px 28px;
+    color: #1e293b;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* HEADER */
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.dashboard-title h2 {
+    font-size: 27px;
+    font-weight: 750;
+    color: #1e293b;
+    margin: 0 0 7px;
+}
+
+.dashboard-title p {
+    color: #718096;
+    font-size: 13px;
+    margin: 0;
+}
+
+.dashboard-period {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-period label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    white-space: nowrap;
+}
+
+.dashboard-period select {
+    min-width: 155px;
+    padding: 10px 35px 10px 13px;
+    border: 1px solid #dbe2ea;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(15,23,42,0.04);
+}
+
+/* KPI CARDS */
+
+.dashboard-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.kpi-card {
+    position: relative;
+    min-width: 0;
+    min-height: 135px;
+    padding: 19px 20px;
+    background: #ffffff;
+    border: 1px solid #e7edf3;
+    border-radius: 11px;
+    box-shadow: 0 3px 10px rgba(15,23,42,0.045);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 7px 17px rgba(15,23,42,0.07);
+}
+
+.kpi-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+
+.kpi-label {
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .6px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.kpi-icon {
+    width: 37px;
+    height: 37px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    font-size: 19px;
+}
+
+.kpi-value {
+    font-size: clamp(19px, 1.8vw, 27px);
+    font-weight: 800;
+    letter-spacing: -.5px;
+    margin: 0;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.kpi-description {
+    margin-top: 7px;
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.kpi-blue {
+    border-top: 3px solid #2563eb;
+}
+
+.kpi-blue .kpi-icon {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.kpi-blue .kpi-value {
+    color: #2563eb;
+}
+
+.kpi-green {
+    border-top: 3px solid #16a34a;
+}
+
+.kpi-green .kpi-icon {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.kpi-green .kpi-value {
+    color: #15803d;
+}
+
+.kpi-neutral {
+    border-top: 3px solid #64748b;
+}
+
+.kpi-neutral .kpi-icon {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.kpi-neutral .kpi-value {
+    color: #334155;
+}
+
+.kpi-teal {
+    border-top: 3px solid #0891b2;
+}
+
+.kpi-teal .kpi-icon {
+    background: #ecfeff;
+    color: #0891b2;
+}
+
+.kpi-teal .kpi-value {
+    color: #0e7490;
+}
+
+/* CHART GRID */
+
+.dashboard-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.dashboard-chart-card {
+    min-width: 0;
+    padding: 21px;
+    background: #ffffff;
+    border: 1px solid #e7edf3;
+    border-radius: 11px;
+    box-shadow: 0 3px 10px rgba(15,23,42,0.04);
+}
+
+.chart-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.chart-heading h5 {
+    margin: 0 0 6px;
+    color: #1e293b;
+    font-size: 15px;
+    font-weight: 750;
+}
+
+.chart-heading p {
+    margin: 0;
+    color: #94a3b8;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.chart-period-badge {
+    display: inline-block;
+    flex-shrink: 0;
+    padding: 6px 10px;
+    border-radius: 20px;
+    color: #2563eb;
+    background: #eff6ff;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.chart-container {
+    width: 100%;
+    height: 300px;
+    position: relative;
+}
+
+.chart-empty-state {
+    height: 260px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #94a3b8;
+    gap: 10px;
+}
+
+.chart-empty-state i {
+    font-size: 38px;
+    color: #cbd5e1;
+}
+
+.chart-empty-state strong {
+    color: #475569;
+    font-size: 13px;
+}
+
+.chart-empty-state span {
+    font-size: 11px;
+}
+
+/* PRODUCT PERFORMANCE */
+
+.product-chart-card {
+    padding: 22px;
+    background: #ffffff;
+    border: 1px solid #e7edf3;
+    border-radius: 11px;
+    box-shadow: 0 3px 10px rgba(15,23,42,0.04);
+    margin-bottom: 18px;
+}
+
+.product-chart-container {
+    position: relative;
+    width: 100%;
+    min-height: 180px;
+}
+
+.product-chart-container canvas {
+    max-width: 100%;
+}
+
+.product-chart-note {
+    color: #94a3b8;
+    font-size: 11px;
+    margin-top: 12px;
+}
+
+/* FOOTER NOTE */
+
+.dashboard-footer-note {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #f8fafc;
+    border: 1px solid #e7edf3;
+    border-radius: 9px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.dashboard-footer-note i {
+    color: #2563eb;
+    font-size: 17px;
+    flex-shrink: 0;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+    .dashboard-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-chart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .kpi-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 600px) {
+    .dashboard-header {
+        align-items: flex-start;
+    }
+
+    .dashboard-title h2 {
+        font-size: 22px;
+    }
+
+    .dashboard-period {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .dashboard-period select {
+        flex: 1;
+    }
+
+    .dashboard-kpis {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .kpi-card {
+        min-height: 120px;
+    }
+
+    .dashboard-chart-card,
+    .product-chart-card {
+        padding: 15px;
+    }
+
+    .chart-container {
+        height: 260px;
+    }
+
+    .chart-period-badge {
+        font-size: 9px;
+    }
+}
+</style>
+
+
+<div class="dashboard-page">
+
+    <!-- =================================
+         DASHBOARD HEADER
+    ================================== -->
+
+    <div class="dashboard-header">
+
+        <div class="dashboard-title">
+
+            <h2>Dashboard Overview</h2>
+
+            <p>
+                Monitor your business sales and performance.
+            </p>
+
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('dashboard.index') }}"
+              class="dashboard-period">
+
+            <label for="period">Reporting Period</label>
+
+            <select name="period"
+                    id="period"
+                    onchange="this.form.submit()">
+
+                <option value="today"
+                    {% if selected_period == 'today' %}selected{% endif %}>
+                    Today
+                </option>
+
+                <option value="this_week"
+                    {% if selected_period == 'this_week' %}selected{% endif %}>
+                    This Week
+                </option>
+
+                <option value="this_month"
+                    {% if selected_period == 'this_month' %}selected{% endif %}>
+                    This Month
+                </option>
+
+                <option value="this_year"
+                    {% if selected_period == 'this_year' %}selected{% endif %}>
+                    This Year
+                </option>
+
+            </select>
+
+        </form>
+
+    </div>
+
+
+    <!-- =================================
+         KEY PERFORMANCE INDICATORS
+    ================================== -->
+
+    <div class="dashboard-kpis">
+
+        <!-- REVENUE -->
+
+        <div class="kpi-card kpi-blue">
+
+            <div class="kpi-top">
+
+                <p class="kpi-label">
+                    Revenue ({{ period_label|upper }})
+                </p>
+
+                <div class="kpi-icon">
+                    <i class="bi bi-currency-exchange"></i>
+                </div>
+
+            </div>
+
+            <h3 class="kpi-value">
+                ₱{{ "{:,.2f}".format(total_revenue) }}
+            </h3>
+
+            <div class="kpi-description">
+                Total sales revenue
+            </div>
+
+        </div>
+
+
+        <!-- PROFIT -->
+
+        <div class="kpi-card kpi-green">
+
+            <div class="kpi-top">
+
+                <p class="kpi-label">
+                    Profit ({{ period_label|upper }})
+                </p>
+
+                <div class="kpi-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+
+            </div>
+
+            <h3 class="kpi-value">
+                ₱{{ "{:,.2f}".format(total_profit) }}
+            </h3>
+
+            <div class="kpi-description">
+                Total gross profit
+            </div>
+
+        </div>
+
+
+        <!-- TRANSACTIONS -->
+
+        <div class="kpi-card kpi-neutral">
+
+            <div class="kpi-top">
+
+                <p class="kpi-label">
+                    Transactions
+                </p>
+
+                <div class="kpi-icon">
+                    <i class="bi bi-receipt"></i>
+                </div>
+
+            </div>
+
+            <h3 class="kpi-value">
+                {{ "{:,}".format(number_of_transactions) }}
+            </h3>
+
+            <div class="kpi-description">
+                Recorded sales transactions
+            </div>
+
+        </div>
+
+
+        <!-- UNITS SOLD -->
+
+        <div class="kpi-card kpi-teal">
+
+            <div class="kpi-top">
+
+                <p class="kpi-label">
+                    Units Sold
+                </p>
+
+                <div class="kpi-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+
+            </div>
+
+            <h3 class="kpi-value">
+                {{ "{:,}".format(total_products_sold) }}
+            </h3>
+
+            <div class="kpi-description">
+                Total products sold
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================
+         SALES CHARTS
+    ================================== -->
+
+    <div class="dashboard-chart-grid">
+
+
+        <!-- DAILY / HOURLY / YEARLY SALES -->
+
+        <div class="dashboard-chart-card">
+
+            <div class="chart-heading">
+
+                <div>
+
+                    <h5>
+                        {% if selected_period == 'today' %}
+                            Hourly Sales Overview
+                        {% elif selected_period == 'this_year' %}
+                            Monthly Sales Overview
+                        {% else %}
+                            Daily Sales Overview
+                        {% endif %}
+                    </h5>
+
+                    <p>
+                        Actual sales revenue for {{ period_label }}.
+                    </p>
+
+                </div>
+
+                <span class="chart-period-badge">
+                    {{ period_label }}
+                </span>
+
+            </div>
+
+            {% if daily_sales_data|sum > 0 %}
+
+                <div class="chart-container">
+                    <canvas id="dailySalesChart"></canvas>
+                </div>
+
+            {% else %}
+
+                <div class="chart-empty-state">
+                    <i class="bi bi-bar-chart-line"></i>
+
+                    <strong>No sales recorded for this period.</strong>
+
+                    <span>Sales data will appear here when transactions are recorded.</span>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+
+        <!-- MONTHLY REVENUE -->
+
+        <div class="dashboard-chart-card">
+
+            <div class="chart-heading">
+
+                <div>
+
+                    <h5>Monthly Revenue Overview</h5>
+
+                    <p>
+                        Actual monthly revenue for {{ current_year }}.
+                    </p>
+
+                </div>
+
+                <span class="chart-period-badge">
+                    {{ current_year }}
+                </span>
+
+            </div>
+
+            {% if monthly_revenue_data|sum > 0 %}
+
+                <div class="chart-container">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+
+            {% else %}
+
+                <div class="chart-empty-state">
+                    <i class="bi bi-calendar3"></i>
+
+                    <strong>No revenue recorded this year.</strong>
+
+                    <span>Monthly revenue will appear here when transactions are recorded.</span>
+                </div>
+
+            {% endif %}
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================
+         PRODUCT SALES PERFORMANCE
+    ================================== -->
+
+    <div class="product-chart-card">
+
+        <div class="chart-heading">
+
+            <div>
+
+                <h5>Product Sales Performance</h5>
+
+                <p>
+                    Top 10 products by units sold during {{ period_label|lower }}.
+                </p>
+
+            </div>
+
+            <span class="chart-period-badge">
+                Top 10 Products
+            </span>
+
+        </div>
+
+
+        {% if product_sales_data %}
+
+            <div class="product-chart-container"
+                 id="productChartContainer">
+
+                <canvas id="productSalesChart"></canvas>
+
+            </div>
+
+            <div class="product-chart-note">
+                Products are ranked from highest to lowest units sold.
+            </div>
+
+        {% else %}
+
+            <div class="chart-empty-state">
+                <i class="bi bi-box-seam"></i>
+
+                <strong>No product sales recorded for this period.</strong>
+
+                <span>Product performance will appear here when sales are recorded.</span>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+
+    <!-- =================================
+         DASHBOARD INFORMATION
+    ================================== -->
+
+    <div class="dashboard-footer-note">
+
+        <i class="bi bi-info-circle"></i>
+
+        <span>
+            All financial figures and product performance data are based
+            on actual recorded transactions. Currency is displayed in
+            Philippine Peso (PHP). The selected reporting period controls
+            the summary cards and period-based sales charts.
+        </span>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================
+     REAL CHART DATA FROM FLASK
+====================================== -->
+
+<div
+    id="chart-data"
+    data-daily-labels="{{ daily_labels | tojson | forceescape }}"
+    data-daily-sales="{{ daily_sales_data | tojson | forceescape }}"
+    data-monthly-labels="{{ monthly_labels | tojson | forceescape }}"
+    data-monthly-revenue="{{ monthly_revenue_data | tojson | forceescape }}"
+    data-product-labels="{{ product_labels | default([], true) | tojson | forceescape }}"
+    data-product-sales="{{ product_sales_data | default([], true) | tojson | forceescape }}"
+    hidden>
+</div>
+
+
+<!-- =====================================
+     CHART.JS CONFIGURATION
+====================================== -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const chartDataElement = document.getElementById('chart-data');
+
+    if (!chartDataElement) {
+        return;
+    }
+
+    // Read actual data supplied by Flask
+
+    const dailyLabels = JSON.parse(
+        chartDataElement.dataset.dailyLabels || '[]'
+    );
+
+    const dailySales = JSON.parse(
+        chartDataElement.dataset.dailySales || '[]'
+    );
+
+    const monthlyLabels = JSON.parse(
+        chartDataElement.dataset.monthlyLabels || '[]'
+    );
+
+    const monthlyRevenue = JSON.parse(
+        chartDataElement.dataset.monthlyRevenue || '[]'
+    );
+
+    const productLabels = JSON.parse(
+        chartDataElement.dataset.productLabels || '[]'
+    );
+
+    const productSales = JSON.parse(
+        chartDataElement.dataset.productSales || '[]'
+    );
+
+
+    // Format currency values
+
+    function formatPeso(value) {
+        return '₱' + Number(value).toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+
+    // Format chart axis values
+
+    function formatAxisPeso(value) {
+        return '₱' + Number(value).toLocaleString('en-PH', {
+            maximumFractionDigits: 0
+        });
+    }
+
+
+    // Shared chart appearance
+
+    const sharedOptions = {
+
+        responsive: true,
+
+        maintainAspectRatio: false,
+
+        interaction: {
+            mode: 'index',
+            intersect: false
+        },
+
+        plugins: {
+
+            legend: {
+                display: false
+            },
+
+            tooltip: {
+
+                backgroundColor: '#1e293b',
+
+                titleColor: '#ffffff',
+
+                bodyColor: '#e2e8f0',
+
+                padding: 12,
+
+                cornerRadius: 7,
+
+                displayColors: false
+
+            }
+
+        },
+
+        scales: {
+
+            y: {
+
+                beginAtZero: true,
+
+                border: {
+                    display: false
+                },
+
+                grid: {
+                    color: '#edf0f4',
+                    drawTicks: false
+                },
+
+                ticks: {
+                    color: '#64748b',
+                    padding: 9,
+                    font: {
+                        size: 10
+                    }
+                }
+
+            },
+
+            x: {
+
+                border: {
+                    display: false
+                },
+
+                grid: {
+                    display: false
+                },
+
+                ticks: {
+                    color: '#64748b',
+                    padding: 8,
+                    font: {
+                        size: 10
+                    }
+                }
+
+            }
+
+        }
+
+    };
+
+
+    // =====================================
+    // DAILY / HOURLY / PERIOD SALES CHART
+    // =====================================
+
+    const dailyCanvas = document.getElementById('dailySalesChart');
+
+    if (dailyCanvas && typeof Chart !== 'undefined') {
+
+        if (Chart.getChart(dailyCanvas)) {
+            Chart.getChart(dailyCanvas).destroy();
+        }
+
+        new Chart(dailyCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: dailyLabels,
+
+                datasets: [{
+
+                    label: 'Sales Revenue',
+
+                    data: dailySales,
+
+                    backgroundColor: '#2563eb',
+
+                    hoverBackgroundColor: '#1d4ed8',
+
+                    borderRadius: 5,
+
+                    borderSkipped: false,
+
+                    maxBarThickness: 38,
+
+                    categoryPercentage: 0.75,
+
+                    barPercentage: 0.8
+
+                }]
+
+            },
+
+            options: {
+
+                ...sharedOptions,
+
+                plugins: {
+
+                    ...sharedOptions.plugins,
+
+                    tooltip: {
+
+                        ...sharedOptions.plugins.tooltip,
+
+                        callbacks: {
+
+                            label: function(context) {
+                                return 'Revenue: ' + formatPeso(context.raw);
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    ...sharedOptions.scales,
+
+                    y: {
+
+                        ...sharedOptions.scales.y,
+
+                        ticks: {
+
+                            ...sharedOptions.scales.y.ticks,
+
+                            callback: function(value) {
+                                return formatAxisPeso(value);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // =====================================
+    // MONTHLY REVENUE CHART
+    // =====================================
+
+    const monthlyCanvas = document.getElementById('monthlyRevenueChart');
+
+    if (monthlyCanvas && typeof Chart !== 'undefined') {
+
+        if (Chart.getChart(monthlyCanvas)) {
+            Chart.getChart(monthlyCanvas).destroy();
+        }
+
+        new Chart(monthlyCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: monthlyLabels,
+
+                datasets: [{
+
+                    label: 'Monthly Revenue',
+
+                    data: monthlyRevenue,
+
+                    backgroundColor: '#16a34a',
+
+                    hoverBackgroundColor: '#15803d',
+
+                    borderRadius: 5,
+
+                    borderSkipped: false,
+
+                    maxBarThickness: 38,
+
+                    categoryPercentage: 0.75,
+
+                    barPercentage: 0.8
+
+                }]
+
+            },
+
+            options: {
+
+                ...sharedOptions,
+
+                plugins: {
+
+                    ...sharedOptions.plugins,
+
+                    tooltip: {
+
+                        ...sharedOptions.plugins.tooltip,
+
+                        callbacks: {
+
+                            label: function(context) {
+                                return 'Revenue: ' + formatPeso(context.raw);
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    ...sharedOptions.scales,
+
+                    y: {
+
+                        ...sharedOptions.scales.y,
+
+                        ticks: {
+
+                            ...sharedOptions.scales.y.ticks,
+
+                            callback: function(value) {
+                                return formatAxisPeso(value);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // =====================================
+    // TOP 10 PRODUCT SALES CHART
+    // =====================================
+
+    const productCanvas = document.getElementById('productSalesChart');
+
+    if (productCanvas && typeof Chart !== 'undefined') {
+
+        if (Chart.getChart(productCanvas)) {
+            Chart.getChart(productCanvas).destroy();
+        }
+
+        // Adjust chart height based on number of products
+
+        const productContainer = document.getElementById(
+            'productChartContainer'
+        );
+
+        if (productContainer) {
+
+            const productHeight = Math.max(
+                190,
+                productLabels.length * 48 + 55
+            );
+
+            productContainer.style.height = productHeight + 'px';
+
+        }
+
+
+        // Wrap long product names into multiple lines
+
+        function wrapProductName(value) {
+
+            const words = String(value).split(/\s+/);
+            const lines = [];
+
+            let currentLine = '';
+
+            words.forEach(function(word) {
+
+                if (currentLine &&
+                    (currentLine + ' ' + word).length > 20) {
+
+                    lines.push(currentLine);
+                    currentLine = word;
+
+                } else {
+
+                    currentLine = currentLine
+                        ? currentLine + ' ' + word
+                        : word;
+
+                }
+
+            });
+
+            if (currentLine) {
+                lines.push(currentLine);
+            }
+
+            return lines;
+
+        }
+
+
+        new Chart(productCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: productLabels,
+
+                datasets: [{
+
+                    label: 'Units Sold',
+
+                    data: productSales,
+
+                    backgroundColor: '#f59e0b',
+
+                    hoverBackgroundColor: '#ea580c',
+
+                    borderRadius: 5,
+
+                    borderSkipped: false,
+
+                    maxBarThickness: 30,
+
+                    barPercentage: 0.65
+
+                }]
+
+            },
+
+            options: {
+
+                indexAxis: 'y',
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                layout: {
+
+                    padding: {
+                        left: 8,
+                        right: 18,
+                        top: 5,
+                        bottom: 5
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+                        display: false
+                    },
+
+                    tooltip: {
+
+                        backgroundColor: '#1e293b',
+
+                        titleColor: '#ffffff',
+
+                        bodyColor: '#e2e8f0',
+
+                        padding: 12,
+
+                        cornerRadius: 7,
+
+                        callbacks: {
+
+                            label: function(context) {
+
+                                return 'Units Sold: ' +
+                                    Number(context.raw).toLocaleString('en-PH');
+
+                            }
+
+                        }
+
+                    }
+
+                },
+
+                scales: {
+
+                    x: {
+
+                        beginAtZero: true,
+
+                        border: {
+                            display: false
+                        },
+
+                        grid: {
+                            color: '#edf0f4',
+                            drawTicks: false
+                        },
+
+                        ticks: {
+
+                            color: '#64748b',
+
+                            precision: 0,
+
+                            padding: 8,
+
+                            font: {
+                                size: 10
+                            },
+
+                            callback: function(value) {
+                                return Number(value).toLocaleString('en-PH');
+                            }
+
+                        }
+
+                    },
+
+                    y: {
+
+                        border: {
+                            display: false
+                        },
+
+                        grid: {
+                            display: false
+                        },
+
+                        ticks: {
+
+                            color: '#475569',
+
+                            padding: 10,
+
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            },
+
+                            callback: function(value, index) {
+
+                                return wrapProductName(
+                                    productLabels[index] || value
+                                );
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    // If Chart.js is unavailable, report a visible message.
+
+    if (typeof Chart === 'undefined') {
+
+        document.querySelectorAll('.chart-container, .product-chart-container')
+            .forEach(function(container) {
+
+                container.innerHTML =
+                    '<div class="chart-empty-state">' +
+                    '<strong>Chart library unavailable.</strong>' +
+                    '<span>Please check your internet connection and reload.</span>' +
+                    '</div>';
+
+            });
+
+    }
+
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,793 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+/* ==========================================
+   REVENUE AND PROFIT DASHBOARD
+========================================== */
+
+.revenue-dashboard {
+    width: 100%;
+    max-width: 1500px;
+    margin: 0 auto;
+    padding: 8px 4px 25px;
+    color: #1e293b;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.revenue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-bottom: 27px;
+}
+
+.revenue-heading h2 {
+    font-size: 27px;
+    font-weight: 750;
+    color: #1e293b;
+    margin: 0 0 7px;
+}
+
+.revenue-heading p {
+    color: #718096;
+    font-size: 14px;
+    margin: 0;
+}
+
+.revenue-filters {
+    display: flex;
+    gap: 5px;
+    padding: 5px;
+    background: #edf2f7;
+    border-radius: 10px;
+}
+
+.revenue-filters a {
+    padding: 10px 17px;
+    text-decoration: none;
+    color: #475569;
+    background: transparent;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.2s ease;
+}
+
+.revenue-filters a:hover {
+    background: #ffffff;
+    color: #2563eb;
+}
+
+.revenue-filters a.active {
+    background: #2563eb;
+    color: #ffffff;
+    box-shadow: 0 2px 5px rgba(37, 99, 235, 0.2);
+}
+
+/* FINANCIAL CARDS */
+
+.revenue-cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.revenue-card {
+    position: relative;
+    background: #ffffff;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+    padding: 23px;
+    min-height: 145px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.045);
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.revenue-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 7px 18px rgba(15, 23, 42, 0.08);
+}
+
+.revenue-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+}
+
+.revenue-card.blue::before {
+    background: #2563eb;
+}
+
+.revenue-card.red::before {
+    background: #dc3545;
+}
+
+.revenue-card.green::before {
+    background: #16a34a;
+}
+
+.revenue-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.revenue-card-label {
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+    margin: 0;
+}
+
+.revenue-card-icon {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 9px;
+    font-size: 19px;
+}
+
+.blue .revenue-card-icon {
+    color: #2563eb;
+    background: #eff6ff;
+}
+
+.red .revenue-card-icon {
+    color: #dc3545;
+    background: #fff1f2;
+}
+
+.green .revenue-card-icon {
+    color: #16a34a;
+    background: #f0fdf4;
+}
+
+.revenue-card-value {
+    margin: 0;
+    font-size: clamp(20px, 2vw, 27px);
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.blue .revenue-card-value {
+    color: #2563eb;
+}
+
+.red .revenue-card-value {
+    color: #dc3545;
+}
+
+.green .revenue-card-value {
+    color: #15803d;
+}
+
+.revenue-card-description {
+    font-size: 11px;
+    color: #94a3b8;
+    margin-top: 9px;
+}
+
+/* LOWER DASHBOARD PANELS */
+
+.revenue-panels {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.revenue-panel {
+    background: #ffffff;
+    border: 1px solid #e8edf3;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+    min-width: 0;
+}
+
+.revenue-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.revenue-panel-header h4 {
+    color: #1e293b;
+    font-size: 16px;
+    font-weight: 750;
+    margin: 0 0 6px;
+}
+
+.revenue-panel-header p {
+    font-size: 12px;
+    color: #94a3b8;
+    margin: 0;
+}
+
+.revenue-period-label {
+    background: #eff6ff;
+    color: #2563eb;
+    padding: 6px 11px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 20px;
+}
+
+/* CHART */
+
+.revenue-chart-container {
+    position: relative;
+    height: 310px;
+    width: 100%;
+}
+
+.revenue-chart-fallback {
+    display: none;
+    padding: 20px;
+    color: #64748b;
+    text-align: center;
+    font-size: 13px;
+}
+
+/* PROFITABILITY DETAILS */
+
+.financial-breakdown {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.financial-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 17px 0;
+    border-bottom: 1px solid #edf0f4;
+}
+
+.financial-row:last-child {
+    border-bottom: none;
+}
+
+.financial-row-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.financial-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+}
+
+.financial-row-value {
+    color: #1e293b;
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.financial-row.profit-row {
+    background: #f0fdf4;
+    border: 1px solid #dcfce7;
+    border-radius: 9px;
+    padding: 16px 12px;
+    margin-top: 15px;
+}
+
+.profit-row .financial-row-label,
+.profit-row .financial-row-value {
+    color: #15803d;
+    font-weight: 700;
+}
+
+.profit-formula {
+    margin-top: 18px;
+    padding: 13px;
+    background: #f8fafc;
+    border-radius: 8px;
+    color: #64748b;
+    font-size: 11px;
+    line-height: 1.6;
+}
+
+.profit-formula strong {
+    color: #334155;
+}
+
+/* BOTTOM INFORMATION */
+
+.revenue-info {
+    margin-top: 20px;
+    padding: 15px 18px;
+    background: #f8fafc;
+    border: 1px solid #e8edf3;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.revenue-info-icon {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    background: #eff6ff;
+    color: #2563eb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.revenue-info p {
+    margin: 0;
+    color: #64748b;
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 1050px) {
+    .revenue-panels {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .revenue-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .revenue-header {
+        align-items: flex-start;
+    }
+
+    .revenue-filters {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .revenue-filters a {
+        flex: 1;
+        text-align: center;
+        padding: 10px 7px;
+    }
+
+    .revenue-heading h2 {
+        font-size: 22px;
+    }
+}
+
+@media (max-width: 420px) {
+    .revenue-panel {
+        padding: 15px;
+    }
+
+    .revenue-card {
+        padding: 19px;
+    }
+
+    .revenue-card-value {
+        font-size: 21px;
+    }
+
+    .financial-row-value {
+        font-size: 12px;
+    }
+}
+</style>
+
+
+<div class="revenue-dashboard">
+
+    <!-- PAGE HEADER -->
+
+    <div class="revenue-header">
+
+        <div class="revenue-heading">
+            <h2>Revenue and Profit Monitoring</h2>
+
+            <p>
+                Track revenue, product costs, and business profitability.
+            </p>
+        </div>
+
+        <!-- EXISTING REPORT FILTERS -->
+
+        <div class="revenue-filters">
+
+            <a href="{{ url_for('reports.revenue', filter='today') }}"
+               class="{% if filter_type == 'today' %}active{% endif %}">
+                Today
+            </a>
+
+            <a href="{{ url_for('reports.revenue', filter='this_week') }}"
+               class="{% if filter_type == 'this_week' %}active{% endif %}">
+                This Week
+            </a>
+
+            <a href="{{ url_for('reports.revenue', filter='this_month') }}"
+               class="{% if filter_type == 'this_month' %}active{% endif %}">
+                This Month
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <!-- FINANCIAL SUMMARY CARDS -->
+
+    <div class="revenue-cards">
+
+        <!-- TOTAL REVENUE -->
+
+        <div class="revenue-card blue">
+
+            <div class="revenue-card-top">
+                <p class="revenue-card-label">Total Revenue</p>
+
+                <div class="revenue-card-icon">
+                    <i class="bi bi-currency-exchange"></i>
+                </div>
+            </div>
+
+            <h3 class="revenue-card-value">
+                ₱{{ "{:,.2f}".format(tot_revenue) }}
+            </h3>
+
+            <div class="revenue-card-description">
+                Total sales generated
+            </div>
+
+        </div>
+
+
+        <!-- TOTAL PRODUCT COST -->
+
+        <div class="revenue-card red">
+
+            <div class="revenue-card-top">
+                <p class="revenue-card-label">Total Product Cost</p>
+
+                <div class="revenue-card-icon">
+                    <i class="bi bi-box-seam"></i>
+                </div>
+            </div>
+
+            <h3 class="revenue-card-value">
+                ₱{{ "{:,.2f}".format(tot_cost) }}
+            </h3>
+
+            <div class="revenue-card-description">
+                Total cost of products sold
+            </div>
+
+        </div>
+
+
+        <!-- GROSS PROFIT -->
+
+        <div class="revenue-card green">
+
+            <div class="revenue-card-top">
+                <p class="revenue-card-label">Gross Profit</p>
+
+                <div class="revenue-card-icon">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </div>
+            </div>
+
+            <h3 class="revenue-card-value">
+                ₱{{ "{:,.2f}".format(gross_profit) }}
+            </h3>
+
+            <div class="revenue-card-description">
+                Revenue after product costs
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- CHART AND PROFITABILITY DETAILS -->
+
+    <div class="revenue-panels">
+
+
+        <!-- REVENUE VS COST CHART -->
+
+        <div class="revenue-panel">
+
+            <div class="revenue-panel-header">
+
+                <div>
+                    <h4>Revenue vs. Product Cost</h4>
+
+                    <p>
+                        Financial performance comparison for the selected period.
+                    </p>
+                </div>
+
+                <span class="revenue-period-label">
+                    {% if filter_type == 'today' %}
+                        Today
+                    {% elif filter_type == 'this_week' %}
+                        This Week
+                    {% else %}
+                        This Month
+                    {% endif %}
+                </span>
+
+            </div>
+
+            <div class="revenue-chart-container">
+                <canvas
+                    id="revenueProfitChart"
+                     data-revenue="{{ tot_revenue }}"
+                     data-cost="{{ tot_cost }}"
+                     data-profit="{{ gross_profit }}">
+                </canvas>
+
+                <div id="revenueChartFallback"
+                     class="revenue-chart-fallback">
+                    Chart library is unavailable. Your financial totals
+                    are still displayed in the summary and breakdown.
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- PROFITABILITY OVERVIEW -->
+
+        <div class="revenue-panel">
+
+            <div class="revenue-panel-header">
+
+                <div>
+                    <h4>Profitability Overview</h4>
+
+                    <p>
+                        Breakdown of your financial performance.
+                    </p>
+                </div>
+
+                <span class="revenue-period-label">
+                    Financial Summary
+                </span>
+
+            </div>
+
+
+            <div class="financial-breakdown">
+
+                <div class="financial-row">
+
+                    <div class="financial-row-label">
+                        <span class="financial-dot"
+                              style="background: #2563eb;"></span>
+                        Total Revenue
+                    </div>
+
+                    <span class="financial-row-value">
+                        ₱{{ "{:,.2f}".format(tot_revenue) }}
+                    </span>
+
+                </div>
+
+
+                <div class="financial-row">
+
+                    <div class="financial-row-label">
+                        <span class="financial-dot"
+                              style="background: #dc3545;"></span>
+                        Product Cost
+                    </div>
+
+                    <span class="financial-row-value">
+                        ₱{{ "{:,.2f}".format(tot_cost) }}
+                    </span>
+
+                </div>
+
+
+                <div class="financial-row profit-row">
+
+                    <div class="financial-row-label">
+                        <span class="financial-dot"
+                              style="background: #16a34a;"></span>
+                        Gross Profit
+                    </div>
+
+                    <span class="financial-row-value">
+                        ₱{{ "{:,.2f}".format(gross_profit) }}
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="profit-formula">
+                <strong>How gross profit is calculated</strong>
+                <br>
+                Gross Profit = Total Revenue − Total Product Cost
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- INFORMATION SECTION -->
+
+    <div class="revenue-info">
+
+        <div class="revenue-info-icon">
+            <i class="bi bi-info-circle"></i>
+        </div>
+
+        <p>
+            All financial figures are based on recorded sales transactions
+            within the selected reporting period. Amounts are displayed
+            in Philippine Peso (PHP).
+        </p>
+
+    </div>
+
+</div>
+
+
+<!-- CHART.JS -->
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const chartCanvas = document.getElementById('revenueProfitChart');
+    const chartFallback = document.getElementById('revenueChartFallback');
+
+    // Actual values provided by Flask
+        const revenueValue = Number(chartCanvas.dataset.revenue);
+        const costValue = Number(chartCanvas.dataset.cost);
+        const profitValue = Number(chartCanvas.dataset.profit);
+
+    function formatPeso(value) {
+        return '₱' + Number(value).toLocaleString('en-PH', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    if (typeof Chart === 'undefined') {
+        chartCanvas.style.display = 'none';
+        chartFallback.style.display = 'block';
+        return;
+    }
+
+    new Chart(chartCanvas, {
+
+        type: 'bar',
+
+        data: {
+            labels: [
+                'Total Revenue',
+                'Product Cost',
+                'Gross Profit'
+            ],
+
+            datasets: [{
+                label: 'Amount (PHP)',
+
+                data: [
+                    revenueValue,
+                    costValue,
+                    profitValue
+                ],
+
+                backgroundColor: [
+                    '#2563eb',
+                    '#dc3545',
+                    '#16a34a'
+                ],
+
+                borderRadius: 7,
+                borderSkipped: false,
+                maxBarThickness: 65
+            }]
+        },
+
+        options: {
+
+            responsive: true,
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    display: false
+                },
+
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return formatPeso(context.raw);
+                        }
+                    }
+                }
+            },
+
+            scales: {
+
+                y: {
+                    beginAtZero: true,
+
+                    ticks: {
+                        color: '#64748b',
+
+                        callback: function(value) {
+                            return '₱' +
+                                Number(value).toLocaleString('en-PH');
+                        },
+
+                        font: {
+                            size: 11
+                        }
+                    },
+
+                    grid: {
+                        color: '#edf0f4',
+                        drawBorder: false
+                    }
+                },
+
+                x: {
+                    ticks: {
+                        color: '#64748b',
+
+                        font: {
+                            size: 11,
+                            weight: '600'
+                        }
+                    },
+
+                    grid: {
+                        display: false
+                    }
+                }
+
+            }
+        }
+    });
+
+});
+</script>
+
+{% endblock %}

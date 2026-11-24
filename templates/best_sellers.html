@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h2 class="mb-4">Best-Selling Products</h2>
+
+<div class="card p-3">
+    <table class="table table-hover align-middle">
+        <thead>
+            <tr>
+                <th>Ranking</th>
+                <th>Product Name</th>
+                <th>Category</th>
+                <th>Total Quantity Sold</th>
+                <th>Total Revenue Generated</th>
+                <th>Total Profit Generated</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in best_sellers %}
+            <tr>
+                <td><span class="badge bg-primary">#{{ loop.index }}</span></td>
+                <td><strong>{{ item.product_name }}</strong></td>
+                <td><span class="badge bg-secondary">{{ item.category }}</span></td>
+                <td>{{ item.total_qty }}</td>
+                <td>₱{{ "{:,.2f}".format(item.total_revenue) }}</td>
+                <td>₱{{ "{:,.2f}".format(item.total_profit) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
